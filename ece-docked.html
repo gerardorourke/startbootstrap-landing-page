@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
@@ -20,123 +21,60 @@
   <!-- Custom styles for this template -->
   <link href="css/landing-page.min.css" rel="stylesheet">
 
-
     <!-- Cisco Provided ECE JavaScript -->
-    <script language=javascript>
-        var egainChat = egainChat || {};
-        /*eGain Chat server */
-        egainChat.serverURL = "http://ucce-ece-db-12.lab2.purplepi.ie/system";
-        /*eGain Chat Entry Point*/
-        egainChat.EntryPointId = "1001";
-        /*eGain Chat Locale*/
-        egainChat.Locale = "en-US";
-        /*eGain template name*/
-        egainChat.Template = "aqua";
-        /*Set to true to enable posting attributes to templates*/
-        egainChat.PostChatAttributes = false;
-        egainChat.CustomerContextParameters = {};
-        egainChat.openHelp = function() {
-            var domainRegex = /^((?:http?:\/\/)?(?:www\.)?([^\/]+))/i;
-            try {
-                if (egainChat.eglvchathandle != null && egainChat.eglvchathandle.closed == false) {
-                    egainChat.eglvchathandle.focus();
-                    return;
-                }
-            } catch (err) {}
-            var refererName = "";
-            refererName = encodeURIComponent(refererName);
-            var refererurl = encodeURIComponent(document.location.href);
-            var hashIndex = refererurl.lastIndexOf('#');
-            if (hashIndex != -1) {
-                refererurl = refererurl.substring(0, hashIndex);
-            }
-            var eglvcaseid = (/eglvcaseid=[0-9]*/gi).exec(window.location.search);
-            var vhtIds = '';
-            if (typeof EGAINCLOUD != 'undefined' && EGAINCLOUD.Account.getAllIds) {
-                var ids = EGAINCLOUD.Account.getAllIds();
-                vhtIds = '&aId=' + ids.a + '&sId=' + ids.s + '&uId=' + ids.u;
-            }
-            var EG_CALL_Q = window.EG_CALL_Q || [];
-            EG_CALL_Q.push(['enableTracker', true]);
-            var eGainChatUrl = egainChat.serverURL + '/templates/chat/' + egainChat.Template + '/index.html?subActivity=Chat&entryPointId=' + egainChat.EntryPointId;
-
-            eGainChatUrl += '' + '&templateName=' + egainChat.Template + '&locale=' + egainChat.Locale + '&ver=v11';
-            eGainChatUrl += '&postChatAttributes=' + egainChat.PostChatAttributes + '&eglvrefname=' + refererName + '&' + eglvcaseid + vhtIds;
-
-            var domain = domainRegex.exec(eGainChatUrl)[0];
-
-            if ((eGainChatUrl + refererurl).length <= 2000)
-                eGainChatUrl += '&referer=' + refererurl;
-            var params = 'height=650,width=450,resizable=yes,scrollbars=yes,toolbar=no';
-
-            window.addEventListener('message', function(event) {
-                try {
-                    var message = JSON.parse(event.data);
-                    if (event.origin === domain && message.Caller.indexOf('EGLV_DOCK') !== -1) {
-                        if (message.Key === 'X-egain-session') {
-                            var response = {
-                                value: window.sessionStorage.getItem('X-egain-session'),
-                                caller: message.Caller
-                            };
-                            event.source.postMessage(JSON.stringify(response), event.origin);
-                        }
-                    }
-                } catch (e) {}
-            });
-            if (egainChat.PostChatAttributes) {
-                if (window.navigator.userAgent.indexOf("Trident") != -1 || window.navigator.userAgent.indexOf("Edge") != -1) {
-                    var win = document.getElementById('egainChatDomainFrame');
-                    win.contentWindow.postMessage(JSON.stringify(egainChat.CustomerContextParameters), domain);
-                } else {
-                    window.addEventListener('message', function(event) {
-                        try {
-                            var message = JSON.parse(event.data);
-                            if (event.origin === domain && message.Caller.indexOf('EGLV_DOCK') !== -1) {
-                                if (message.Key === 'EgainChatParameter') {
-
-                                    var response = {
-                                        value: egainChat.CustomerContextParameters,
-                                        caller: message.Caller
-                                    };
-                                    event.source.postMessage(JSON.stringify(response), event.origin);
-                                }
-                            }
-                        } catch (e) {}
-                    });
-                }
-            }
-            egainChat.eglvchathandle = window.open(eGainChatUrl, '', params);
-        };
-        /*To be called by client website. All the parameters specified in application-chat-defaults must be set here.*/
-        egainChat.SetCustomerParameters = function(egainAttributeName, attributeValue) {
-            egainChat.CustomerContextParameters[egainAttributeName] = attributeValue;
-        };
-        egainChat.writeIframeIfRequired = function() {
-            if (egainChat.PostChatAttributes && (window.navigator.userAgent.indexOf("Trident") != -1 || window.navigator.userAgent.indexOf("Edge") != -1)) {
-                var iframe = document.createElement('iframe');
-                iframe.src = egainChat.serverURL + '/web/view/live/customer/storeparams.html?wsname=' + window.location.protocol + '//' + window.location.host;
-                iframe.style.display = 'none';
-                iframe.name = 'egainChatDomainFrame';
-                iframe.id = 'egainChatDomainFrame';
-                if (typeof document.body !== 'undefined' && document.body !== null) {
-                    document.body.appendChild(iframe);
-                } else {
-                    setTimeout(egainChat.writeIframeIfRequired, 100);
-                }
-            }
+<script language=javascript>
+    /*eGain Chat server */
+    var egainDockChat = egainDockChat  || {};
+    egainDockChat.serverURL = "http://ucce-ece-db-12.lab2.purplepi.ie/system";
+    /*eGain Chat Entry Point*/
+    egainDockChat.EntryPointId  = "1001";
+    /*eGain Chat Locale*/
+    egainDockChat.Locale  = "en-US";
+    /*eGain template name*/
+    egainDockChat.Template = "aqua";
+    /*Set to true to enable posting attributes to templates*/
+    egainDockChat.PostChatAttributes = false;
+    egainDockChat.IntegratedEntryPoint  = "true";
+    /*eGain video chat parameters */
+    egainDockChat.VChatParams = '';
+    /*Set to true if custom button is used to launch docked chat */
+    egainDockChat.UseCustomButton=true;
+    /*Method to set customer Parameters. To be called by client website. All the parameters specified in application-chat-defaults must be set here.*/
+    egainDockChat.SetCustomerParameters = function (egainAttributeName, attributeValue) {
+        if(!egainDockChat.SetParameter){
+           egainDockChat.CallQueue = egainDockChat.CallQueue || [];
+            egainDockChat.CallQueue.push({name:'SetParameter', args:[egainAttributeName,attributeValue]});
+        }else{
+            egainDockChat.SetParameter(egainAttributeName,attributeValue);
         }
-        egainChat.writeIframeIfRequired();
-    </script>
-
-
+    };
+    /* Method to be called on click of custom button to launch chat in docked mode */
+    egainDockChat.openHelp = function(){
+        egainDockChat.IsChatLaunched = true;
+            startChat();
+    }
+    if(!egainDockChat.UseCustomButton){
+        startChat();
+    }
+    function startChat(){
+        if(!egainDockChat.launchChat){
+            egainDockChat.CallQueue = egainDockChat.CallQueue || [];
+            egainDockChat.CallQueue.push({name:'launchChat', args:[]});
+        }else{
+            egainDockChat.launchChat();
+        }
+    }
+</script>
 </head>
 
 <body>
 
+<script type="text/javascript" src="http://ucce-ece-db-12.lab2.purplepi.ie/system/templates/chat/egain-chat.js"></script>
+
   <!-- Navigation -->
   <nav class="navbar navbar-light bg-light static-top">
     <div class="container">
-      <a class="navbar-brand" href="#">Purple Pi - ECE Undocked Chat Example</a>
+      <a class="navbar-brand" href="#">Purple Pi - ECE Docked Chat Example</a>
       <a class="btn btn-primary" href="#">Sign In</a>
     </div>
   </nav>
@@ -185,7 +123,7 @@
 <!-- Start of Chat Div's -->
 
 <!-- This Div "mychatOn" will be hidden until the chatStatus JavaScript has run (at the end of the page) and will then become visible if variable chatStatus='open' -->
-		<div id="mychatOn" style="display: none" class="col-lg-4" onclick="disableProactiveChat();egainChat.openHelp();" href='javascript:void(0)'>
+		<div id="mychatOn" style="display: none" class="col-lg-4" onclick="disableProactiveChat();egainDockChat.openHelp();" href='javascript:void(0)'>
           <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
             <div class="features-icons-icon d-flex justify-content-center" >
               <i class="icon-bubbles m-auto text-primary"></i>
@@ -403,7 +341,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" onclick="$('#chatModal').modal('hide');egainChat.openHelp();">Chat Now!</button>
+        <button type="button" class="btn btn-primary" onclick="$('#chatModal').modal('hide');egainDockChat.openHelp();">Chat Now!</button>
       </div>
     </div>
   </div>
@@ -479,7 +417,8 @@
             console.log('chatStatus chatTimer: 0');
         }
     </script>
-
+    <!--Cisco ECE JS to enable docked chat -->
+    <script type="text/javascript" src="http://ucce-ece-db-12.lab2.purplepi.ie/system/templates/chat/egain-chat.js"></script>	
 
 </body>
 
