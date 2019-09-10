@@ -187,7 +187,7 @@
 <!-- Start of Chat Div's -->
 
 <!-- This Div "mychatOn" will be hidden until the chatStatus JavaScript has run (at the end of the page) and will then become visible if variable chatStatus='open' -->
-		<div id="mychatOn" style="display: none" class="col-lg-4" onclick="disableProactiveChat();egainChat.openHelp();" href='javascript:void(0)'>
+		<div id="mychatOn" style="display: none" class="col-lg-4" onclick="disableProactiveChat();egainDockChat.openHelp();" href='javascript:void(0)'>
           <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
             <div class="features-icons-icon d-flex justify-content-center" >
               <i class="icon-bubbles m-auto text-primary"></i>
@@ -203,11 +203,12 @@
             <div class="features-icons-icon d-flex justify-content-center" >
               <i class="icon-bubbles m-auto text-primary"></i>
             </div>
-            <h3>Sorry Chat is now closed</h3>
+            <h3>Chat is now closed</h3>
 			<!-- only one of the below 3 divs should appears - and this depends on teh value of chatStatusReason - in this example Reason needs to be  exactly "Emergency" or "Holiday" - set in CCE BusinessHours -->
-            <p id="mychatclosed-standardmessage" class="lead mb-0">Chat to us from 9am to 5pm from Monday to Friday</p>
+            <p id="mychatclosed-standardmessage" class="lead mb-0">Chat to us from 9am to 5pm from Monday to Friday.</p>
             <p id="mychatclosed-holidaymessage" style="display: none" class="lead mb-0">We are closed for the Bank Holiday. Chat to us tomorrow from 9am!</p>
-            <p id="mychatclosed-emergencymessage" style="display: none" class="lead mb-0">Sorry we are experiencing technical issues. Please try again later</p>
+            <p id="mychatclosed-emergencymessage" style="display: none" class="lead mb-0">Sorry we have had to close due to unforeseen circumstances. Please try again later.</p>
+            <p id="mychatclosed-outofservicemessage" style="display: none" class="lead mb-0">Sorry we are experiencing technical issues. Please try again later.</p>
           </div>
 		</div>
 
@@ -405,7 +406,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" onclick="$('#chatModal').modal('hide');egainChat.openHelp();">Chat Now!</button>
+        <button type="button" class="btn btn-primary" onclick="$('#chatModal').modal('hide');egainDockChat.openHelp();">Chat Now!</button>
       </div>
     </div>
   </div>
@@ -428,7 +429,8 @@
 	-->
     <script type="text/javascript" src="http://ucce-ece-db-12.lab2.purplepi.ie/system/templates/chat/businessHours/chatStatus.asp?businessHoursId=5001&chatEntryId=1001"></script>
 	
-	<!-- Set Default values in case chatStatus JavaScript API is out of service -->
+
+	<!-- Set Default values in case chatStatus there is no resposne from the JavaScript API (i.e. is out of service) -->
 	<script>
 	if (chatStatus == null) {
             var chatStatus = 'closed';
@@ -437,7 +439,7 @@
         }
 	</script>
 
-    <!-- Custom Cisco ECE JavaScript for Show or Hide the open / closed / busy Chat option based on var 'chatStatus' value-->
+    <!-- JavaScript to Show or Hide the open / closed / busy Chat options in teh above HTML code based on 'chatStatus' and 'chatStatusReason' values-->
 	<script type="text/javascript">
 
         if (chatStatus == 'closed') {
@@ -450,11 +452,19 @@
 			$('#mychatclosed-holidaymessage').show();
             $('#mychatclosed-standardmessage').hide();
             $('#mychatclosed-emergencymessage').hide();
+            $('#mychatclosed-outofservicemessage').hide();
 			}
         if (chatStatusReason == 'Emergency') { //Case sensensitve = match exactly!
             $('#mychatclosed-emergencymessage').show();
 			$('#mychatclosed-holidaymessage').hide();
             $('#mychatclosed-standardmessage').hide();
+            $('#mychatclosed-outofservicemessage').hide();
+			}
+        if (chatStatusReason == 'out of service') { //Case sensensitve = match exactly!
+            $('#mychatclosed-outofservicemessage').show();
+			$('#mychatclosed-holidaymessage').hide();
+            $('#mychatclosed-standardmessage').hide();
+            $('#mychatclosed-emergencymessage').hide();
 			}
         }
         if (chatStatus == 'open') {
@@ -481,8 +491,7 @@
             console.log('chatStatus chatTimer: 0');
         }
     </script>
-
-
+	
 </body>
 
 </html>
