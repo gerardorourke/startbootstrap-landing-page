@@ -358,24 +358,37 @@
 	<script type="text/javascript">
 	
 	// Initiate Variables
-	var chatStatus = 'closed';
+	var chatStatus = 'closed1';
 	var chatStatusReason = 'out of service';
 	var chatTimer = '0';
 	var chatProactiveAttempts = '0'
+	var chatStatusRefreshTimer = '10000'; // refresh timer set 5 seconds for testing - in production set to '60000'
 	var chatProactiveRetryAttempts = '1';
-	var chatStatusRefreshTimer = '5000'; // refresh timer set 5 seconds for testing - in production set to '60000'
-	var chatStatusUrl = "./fetchChatStatus.php?businessHoursId=5001&chatEntryId=1001";
+	//var chatStatusUrl = "./fetchChatStatus.php?businessHoursId=5001&chatEntryId=1001";
+	//var chatStatusUrl = "http://ucce-ece-db-12.lab2.purplepi.ie/system/templates/chat/businessHours/chatStatus.asp?businessHoursId=5001&chatEntryId=1001";
+	var chatStatusUrl = "http://ucce-ece-db-12.lab2.purplepi.ie/system/templates/chat/businessHours/chatStatusJSON.asp?businessHoursId=5001&chatEntryId=1001";
+	//var chatStatusUrl = "http://orourke.tv/chat/fetchChatStatus.php?businessHoursId=5001chatEntryId=1001";
+	//var chatStatusUrl = "http://orourke.tv/chat/fetchChatStatusJSONP.php?businessHoursId=5001chatEntryId=1001";
 	
 	getChatStatus(); //on load of page run the (Ajax) Script
 	
-	function getChatStatus() {
-	$.get(chatStatusUrl,function() { 
+	function getChatStatus() { //Note - the JSON Response gets auto parsed by jQuery.
+	$.get(chatStatusUrl,function(chatdata) { 
+	chatStatus = chatdata.chatStatus;
+	chatStatusReason = chatdata.chatStatusReason;
+	chatTimer = chatdata.chatTimer;
+	if (chatdata.debugLevel > 0){
+    console.log("---- ChatStatus API Response ----");
+    console.log(chatdata);
+    console.log("---------------------------------");
+	}
 	setChatStatus(); //on success call this function to update the page
     })
 	.fail(function() {
 	chatStatus = 'closed';
 	chatStatusReason = 'out of service';
 	chatTimer = '0';
+    console.log("chatStatus: Ajax Call failed");
 	setChatStatus(); //on fail call this function to update the page
     })
 	};

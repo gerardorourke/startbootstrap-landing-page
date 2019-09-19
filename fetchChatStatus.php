@@ -1,5 +1,8 @@
 <?php
 header('Content-Type: application/javascript');
+header('Access-Control-Allow-Origin: http://purplepi.ie');
+//header('X-Frame-Options: SAMEORIGIN');
+//header("Content-Security-Policy: frame-ancestors 'self'");
 
 $myBusinessHoursId = htmlspecialchars($_GET["businessHoursId"]);
 $myChatEntryId = htmlspecialchars($_GET["chatEntryId"]);

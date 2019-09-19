@@ -354,6 +354,7 @@
     }
 </script>
 
+    <!-- JavaScript to Show or Hide the open / closed / busy Chat options in teh above HTML code based on 'chatStatus' and 'chatStatusReason' values-->
 	<script type="text/javascript">
 	
 	// Initiate Variables
@@ -362,21 +363,20 @@
 	var chatTimer = '0';
 	var chatProactiveAttempts = '0'
 	var chatProactiveRetryAttempts = '1';
-	
-	var chatStatusRefreshTimer = '15000'; // refresh timer set 15 seconds for testing - in production set to '60000'
-	var chatStatusUrl = "http://ucce-ece-db-12.lab2.purplepi.ie/system/templates/chat/businessHours/chatStatus.asp?businessHoursId=5001&chatEntryId=1001";
+	var chatStatusRefreshTimer = '5000'; // refresh timer set 5 seconds for testing - in production set to '60000'
+	var chatStatusUrl = "./fetchChatStatus.php?businessHoursId=5001&chatEntryId=1001";
 	
 	getChatStatus(); //on load of page run the (Ajax) Script
 	
 	function getChatStatus() {
 	$.get(chatStatusUrl,function() { 
-	setChatStatus();
+	setChatStatus(); //on success call this function to update the page
     })
 	.fail(function() {
 	chatStatus = 'closed';
 	chatStatusReason = 'out of service';
-	chatTimer = '0';	
-	setChatStatus();
+	chatTimer = '0';
+	setChatStatus(); //on fail call this function to update the page
     })
 	};
 
@@ -424,7 +424,7 @@
             //Proactive Chat
 			if (chatProactiveRetryAttempts > chatProactiveAttempts){
 				setTimeout(function() {
-					if ((chatTimer != 0) && (chatProactiveRetryAttempts > chatProactiveAttempts)) {
+					if ((chatTimer != 0) && (chatStatus == 'open') && (chatProactiveRetryAttempts > chatProactiveAttempts)) {
 						chatProactiveAttempts++
 						$('#chatModal').modal();
 					}
@@ -432,7 +432,7 @@
 			}
         }
 		if (chatStatusReason != 'out of service'){
-		setTimeout(getChatStatus, chatStatusRefreshTimer); //call the getChatStatus function again in X seconds
+			setTimeout(getChatStatus, chatStatusRefreshTimer); //call the getChatStatus function again in X seconds
 		}
         }
 	
