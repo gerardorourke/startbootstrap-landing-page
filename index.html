@@ -21,50 +21,6 @@
   <!-- Custom styles for this template -->
   <link href="css/landing-page.min.css" rel="stylesheet">
 
-<!-- Cisco Provided ECE JavaScript -->
-<script language=javascript>
-    /*eGain Chat server */
-    var egainDockChat = egainDockChat  || {};
-    egainDockChat.serverURL = "http://ucce-ece-db-12.lab2.purplepi.ie/system";
-    /*eGain Chat Entry Point*/
-    egainDockChat.EntryPointId  = "1001";
-    /*eGain Chat Locale*/
-    egainDockChat.Locale  = "en-US";
-    /*eGain template name*/
-    egainDockChat.Template = "aqua";
-    /*Set to true to enable posting attributes to templates*/
-    egainDockChat.PostChatAttributes = false;
-    egainDockChat.IntegratedEntryPoint  = "true";
-    /*eGain video chat parameters */
-    egainDockChat.VChatParams = '';
-    /*Set to true if custom button is used to launch docked chat */
-    egainDockChat.UseCustomButton=true;
-    /*Method to set customer Parameters. To be called by client website. All the parameters specified in application-chat-defaults must be set here.*/
-    egainDockChat.SetCustomerParameters = function (egainAttributeName, attributeValue) {
-        if(!egainDockChat.SetParameter){
-           egainDockChat.CallQueue = egainDockChat.CallQueue || [];
-            egainDockChat.CallQueue.push({name:'SetParameter', args:[egainAttributeName,attributeValue]});
-        }else{
-            egainDockChat.SetParameter(egainAttributeName,attributeValue);
-        }
-    };
-    /* Method to be called on click of custom button to launch chat in docked mode */
-    egainDockChat.openHelp = function(){
-        egainDockChat.IsChatLaunched = true;
-            startChat();
-    }
-    if(!egainDockChat.UseCustomButton){
-        startChat();
-    }
-    function startChat(){
-        if(!egainDockChat.launchChat){
-            egainDockChat.CallQueue = egainDockChat.CallQueue || [];
-            egainDockChat.CallQueue.push({name:'launchChat', args:[]});
-        }else{
-            egainDockChat.launchChat();
-        }
-    }
-</script>
 </head>
 
 <body>
@@ -335,8 +291,8 @@
         </button>
       </div>
       <div class="modal-body">
-		<p>Hello, one of our assistents is available to assist you now. 
-		<p>Do you want to chat?
+		<p>Hello, one of your experts is available to assist you now.
+		<p>Would you like to chat?
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -353,80 +309,159 @@
   <script src="vendor/jquery/jquery.min.js"></script>
   <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
-    <!-- chatStatus Javascript API using Cisco ECE & CCE APIs to check the chatStatus (open, closed or busy) - returns the variable 'chatStatus', chatStatusReason and chatTimer.
-	Make sure to pass in a valid BusinessHour and Chat EntryPoint ID
-	
-	Example Response:
-    var chatStatus = 'busy';
-    var chatStatusReason = 'MinAgentCount';
-    var chatTimer = '10000';
-	-->
-    <script type="text/javascript" src="http://ucce-ece-db-12.lab2.purplepi.ie/system/templates/chat/businessHours/chatStatus.asp?businessHoursId=5001&chatEntryId=1001"></script>
-	
-
-	<!-- Set Default values in case chatStatus there is no resposne from the JavaScript API (i.e. is out of service) -->
-	<script>
-	if (chatStatus == null) {
-            var chatStatus = 'closed';
-			var chatStatusReason = 'out of service';
-			var chatTimer = '0';
+<!-- Cisco Provided ECE JavaScript -->
+<script language=javascript>
+    /*eGain Chat server */
+    var egainDockChat = egainDockChat  || {};
+    egainDockChat.serverURL = "http://ucce-ece-db-12.lab2.purplepi.ie/system";
+    /*eGain Chat Entry Point*/
+    egainDockChat.EntryPointId  = "1001";
+    /*eGain Chat Locale*/
+    egainDockChat.Locale  = "en-US";
+    /*eGain template name*/
+    egainDockChat.Template = "aqua";
+    /*Set to true to enable posting attributes to templates*/
+    egainDockChat.PostChatAttributes = false;
+    egainDockChat.IntegratedEntryPoint  = "true";
+    /*eGain video chat parameters */
+    egainDockChat.VChatParams = '';
+    /*Set to true if custom button is used to launch docked chat */
+    egainDockChat.UseCustomButton=true;
+    /*Method to set customer Parameters. To be called by client website. All the parameters specified in application-chat-defaults must be set here.*/
+    egainDockChat.SetCustomerParameters = function (egainAttributeName, attributeValue) {
+        if(!egainDockChat.SetParameter){
+           egainDockChat.CallQueue = egainDockChat.CallQueue || [];
+            egainDockChat.CallQueue.push({name:'SetParameter', args:[egainAttributeName,attributeValue]});
+        }else{
+            egainDockChat.SetParameter(egainAttributeName,attributeValue);
         }
-	</script>
+    };
+    /* Method to be called on click of custom button to launch chat in docked mode */
+    egainDockChat.openHelp = function(){
+        egainDockChat.IsChatLaunched = true;
+            startChat();
+    }
+    if(!egainDockChat.UseCustomButton){
+        startChat();
+    }
+    function startChat(){
+        if(!egainDockChat.launchChat){
+            egainDockChat.CallQueue = egainDockChat.CallQueue || [];
+            egainDockChat.CallQueue.push({name:'launchChat', args:[]});
+        }else{
+            egainDockChat.launchChat();
+        }
+    }
+</script>
 
-    <!-- JavaScript to Show or Hide the open / closed / busy Chat options in teh above HTML code based on 'chatStatus' and 'chatStatusReason' values-->
+    <!-- JavaScript to Show or Hide the open / closed / busy Chat options based on 'chatStatus' and 'chatStatusReason' values from chatStatus custom API-->
 	<script type="text/javascript">
+	
+	// Initiate Variables
+	var chatStatus = 'closed';
+	var chatStatusReason = 'out of service';
+	var chatTimer = '0';
+	var chatProactiveAttempts = '0' //Initialise to zero
+	var chatStatusRefreshTimer = '10000'; // refresh timer set 10 seconds for testing - in production set to '60000'
+	var chatProactiveRetryAttempts = '1';
+	var chatStatusUrl = "http://ucce-ece-db-12.lab2.purplepi.ie/system/templates/chat/businessHours/chatStatus.asp";
+	var mybusinessHourId = '5001';
+	var mychatEntryId = '1001';
+	
+	getChatStatus(); //on load of page run the (Ajax) Script
 
-        if (chatStatus == 'closed') {
+	function getChatStatus() { //Note - the JSON Response gets auto parsed by jQuery.
+        $.ajax({
+                url: chatStatusUrl,
+                data: {businessHoursId: mybusinessHourId, chatEntryId: mychatEntryId},
+                dataType: 'json',
+                success: function(chatStatusAPI) {
+					chatStatus = chatStatusAPI.chatStatus;
+					chatStatusReason = chatStatusAPI.chatStatusReason;
+					chatTimer = chatStatusAPI.chatTimer;
+					if (chatStatusAPI.debugLevel > 0) {
+						console.log("------ ChatStatus API Success Response ------");
+						console.log(chatStatusAPI);
+						console.log("---------------------------------------------");
+				}
+				setChatStatus(); //on success call this function to update the page
+					}
+            })				
+			.fail(function() {
+				chatStatus = 'closed';
+				chatStatusReason = 'out of service';
+				chatTimer = '0';
+				console.log("------ chatStatus: Ajax Call failed ------");
+				setChatStatus(); //on fail call this function to update the page
+			})
+			
+	};
+	
+	function setChatStatus() {
+
+		if (chatStatus == 'closed') {
             $('#mychatOff').show();
             $('#mychatOn').hide();
             $('#mychatBusy').hide();
             $('#mychatPageLoad').hide();
 			
-        if (chatStatusReason == 'Holiday') { //Case sensensitve = match exactly!
-			$('#mychatclosed-holidaymessage').show();
-            $('#mychatclosed-standardmessage').hide();
-            $('#mychatclosed-emergencymessage').hide();
-            $('#mychatclosed-outofservicemessage').hide();
+			if (chatStatusReason == 'Holiday') { //Case sensensitve = match exactly!
+				$('#mychatclosed-holidaymessage').show();
+				$('#mychatclosed-standardmessage').hide();
+				$('#mychatclosed-emergencymessage').hide();
+				$('#mychatclosed-outofservicemessage').hide();
 			}
-        if (chatStatusReason == 'Emergency') { //Case sensensitve = match exactly!
-            $('#mychatclosed-emergencymessage').show();
-			$('#mychatclosed-holidaymessage').hide();
-            $('#mychatclosed-standardmessage').hide();
-            $('#mychatclosed-outofservicemessage').hide();
+			if (chatStatusReason == 'Emergency') { //Case sensensitve = match exactly!
+				$('#mychatclosed-emergencymessage').show();
+				$('#mychatclosed-holidaymessage').hide();
+				$('#mychatclosed-standardmessage').hide();
+				$('#mychatclosed-outofservicemessage').hide();
 			}
-        if (chatStatusReason == 'out of service') { //Case sensensitve = match exactly!
-            $('#mychatclosed-outofservicemessage').show();
-			$('#mychatclosed-holidaymessage').hide();
-            $('#mychatclosed-standardmessage').hide();
-            $('#mychatclosed-emergencymessage').hide();
+			if (chatStatusReason == 'out of service') { //Case sensensitve = match exactly!
+				$('#mychatclosed-outofservicemessage').show();
+				$('#mychatclosed-holidaymessage').hide();
+				$('#mychatclosed-standardmessage').hide();
+				$('#mychatclosed-emergencymessage').hide();
 			}
         }
-        if (chatStatus == 'open') {
-            $('#mychatOn').show();
-            $('#mychatOff').hide();
-            $('#mychatBusy').hide();
-            $('#mychatPageLoad').hide();
-            //Proactive Chat
-            setTimeout(function() {
-                if (chatTimer != 0) {
-                    $('#chatModal').modal();
-                }
-            }, chatTimer);
-        }
+
         if (chatStatus == 'busy') {
             $('#mychatBusy').show();
             $('#mychatOff').hide();
             $('#mychatOn').hide();
             $('#mychatPageLoad').hide();
         }
+		
+        if (chatStatus == 'open') {
+            $('#mychatOn').show();
+            $('#mychatOff').hide();
+            $('#mychatBusy').hide();
+            $('#mychatPageLoad').hide();
 
+            //Proactive Chat
+			if (chatProactiveRetryAttempts > chatProactiveAttempts){
+				setTimeout(function() {
+					if ((chatTimer != 0) && (chatStatus == 'open') && (chatProactiveRetryAttempts > chatProactiveAttempts)) { //Since open state can change by the timer occurs - need to check again before showing 
+						chatProactiveAttempts++
+						$('#chatModal').modal();
+					}
+				}, chatTimer);
+			}
+        }
+		if (chatStatusReason != 'out of service'){
+			setTimeout(getChatStatus, chatStatusRefreshTimer); //call the getChatStatus function again in X seconds as long as chatStatusReason is NOT 'out of service'
+		}
+        }
+	
         function disableProactiveChat() {
             window.chatTimer = 0;
             console.log('chatStatus chatTimer: 0');
         }
+
+
     </script>
 	
-<!-- Cisco Provided ECE JavaScript - required for docked chat -->
+	<!-- Cisco Provided ECE JavaScript - required for docked chat -->
     <script type="text/javascript" src="http://ucce-ece-db-12.lab2.purplepi.ie/system/templates/chat/egain-chat.js"></script>	
 
 </body>
